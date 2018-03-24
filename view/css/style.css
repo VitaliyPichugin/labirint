@@ -1,0 +1,36 @@
+body{
+    background-color: #a09589;
+}
+input{
+    width: 35px;
+}
+
+.row{
+    line-height: 0;
+}
+
+.cell{
+    width: 150px;
+    height: 150px;
+    background-color: #8a6d3b;
+    border: 1px solid grey;
+}
+
+.new, .conf, .play_game{
+    margin-bottom: 20px;
+}
+
+.cell:hover{
+    cursor: pointer;
+    background-color: #8a8219;
+}
+
+h4{
+    margin-bottom: 90px;
+}
+
+
+
+
+
+
