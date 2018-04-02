@@ -24,76 +24,31 @@ jQuery(document).ready(function($) {
     $('body').on('click', '.new', function () {
         $('.play_game').remove();
         $('.cell').unbind('click').css('background-color', '#8a6d3b').text('');
-        generatePlay();
         $('.step').prop("disabled", true);
         cycle = true;
         $('.setting_game').remove();
-        highLite();
         startGame();
     });
 
     function startGame() {
-        $('.cell').bind('click', function () {
-            let selectCell = '';
-            let col = '';
-            let row = '';
-            $('.step').prop("disabled", false);
-            if (cycle) {
-                $('.cell').css('background-color', '#8a6d3b').text('');
-                $(this).css({
-                    backgroundColor:'#ff7b11',
-                    paddingTop: $(this).height()/2 + 'px',
-                }).text('Выбран');
-                $('.step').unbind('click');
-                 selectCell = $(this).attr('data-cell');
-                 col = $(this).attr('data-col');
-                 row = $(this).attr('data-row');
-                $('.step').bind('click', function () {
-                    let action = $(this).attr('action');
-                    $('.play_game, .setting_game').remove();
+        $('.step').prop("disabled", false);
+        if (cycle) {
+            $('.cell').css({
+                backgroundColor: '#8a6d3b',
+                paddingTop: $('.cell').height()/2+'px'
+            }).text('');
+            let cell = generatePoint();
+            let step = generateStep();
+            $('.play_game, .setting_game').remove();
+            setTimeout(function () {
                     info('Выберите место где остановился маркер');
-                    $('.cell').css('background-color', '#8a6d3b').text('');
-
-                    $.ajax({
-                        type: 'POST',
-                        url: 'index.php',
-                        data: {
-                            action: action,
-                            count: count_steps,
-                            selectCell: selectCell,
-                            column: col,
-                            rows: row,
-                            fieldRow: field_row,
-                            fieldCol: field_col
-                        },
-                        success: function (data) {
-                            $('.cell').each(function () {
-                                $(this).bind('click', function () {
-                                    $('.alert').remove();
-                                    if ($(this).attr('data-cell') === data) {
-                                        $(this).css('background-color', 'green').text('You win!');
-                                        $('.cell').unbind('click');
-                                    }
-                                    if ($(this).attr('data-cell') !== data) {
-                                        $(this).css('background-color', 'red').text('You lose!');
-                                        $('[data-cell=' + data + ']').css({
-                                            backgroundColor: 'green',
-                                            paddingTop: $(this).height()/2 + 'px'
-                                        }).text('Correctly');
-                                        $('.cell').unbind('click');
-                                    }
-                                    generateBtn();
-                                });
-                            });
-                        }
-                    });
-                });
-            } else {
-                $('.step').unbind('click');
-                $('.cell').unbind('click');
-                return false;
-            }
-        });
+                    highLite();
+                    getAjax(step, count_steps, cell.cell, cell.col, cell.row, field_row, field_col);
+                }, 600
+            );
+        } else {
+            return false;
+        }
     }
 
     function draw_field(rows, cols) {
@@ -110,15 +65,87 @@ jQuery(document).ready(function($) {
         }
     }
 
-    function generatePlay() {
-        $('.btn-group').html();
-        $('.btn-group').append(`<div class="play_game">
-        <button action="goUp" type="button" class="btn btn-default step">Ход вверх</button>
-        <button action="goDown" type="button" class="btn btn-default step">Ход вниз</button>
-        <button action="goLeft" type="button" class="btn btn-default step">Ход влево</button>
-        <button action="goRight" type="button" class="btn btn-default step">Ход вправо</button></div> 
-        `);
-        $('.step').bind('click');
+    function getAjax(step, count_steps, cell, col, row, field_row, field_col) {
+        $.ajax({
+            type: 'POST',
+            url: 'index.php',
+            data: {
+                action: step,
+                count: count_steps,
+                selectCell: cell,
+                column: col,
+                rows: row,
+                fieldRow: field_row,
+                fieldCol: field_col
+            },
+            success: function (data) {
+                $('.cell').each(function () {
+                    $(this).bind('click', function () {
+                        $('.alert').remove();
+                        if ($(this).attr('data-cell') === data) {
+                            $(this).css('background-color', 'green').text('You win!');
+                            $('.cell').unbind('click');
+                        }
+                        if ($(this).attr('data-cell') !== data) {
+                            $(this).css('background-color', 'red').text('You lose!');
+                            $('[data-cell=' + data + ']').css({
+                                backgroundColor: 'green'
+                            }).text('Correctly');
+                            $('.cell').unbind('click');
+                        }
+                        generateBtn();
+                    });
+                });
+            }
+        });
+    }
+
+    function generatePoint() {
+        let min_point = $('.cell:first').attr('data-cell');
+        let max_point = $('.cell:last').attr('data-cell');
+
+        let val = getRandomValue(min_point, max_point);
+        let selected_point = $('.cell[data-cell="'+val+'"]');
+
+        let row = selected_point.attr('data-row');
+        let col = selected_point.attr('data-col');
+
+        setTimeout(function () {
+            selected_point.addClass('active').css({
+                backgroundColor:'#ff7b11'
+            }).text('Selected');
+        }, 500);
+
+        return {
+            "cell": val,
+            "row": row,
+            "col": col
+        };
+    }
+
+    function generateStep() {
+        const steps = [
+            "goUp",
+            "goDown",
+            "goLeft",
+            "goRight"
+        ];
+
+        let min_step = 0;
+        let max_step = steps.length-1;
+        let step = getRandomValue(min_step, max_step, 'step');
+
+        return steps[step];
+    }
+
+
+    function getRandomValue(min, max, type=null)
+    {
+        if(type == 'step'){
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }else {
+            return  Math.ceil(Math.random() * (max - min) + min);
+        }
     }
 
     function generateBtn() {
@@ -131,12 +158,12 @@ jQuery(document).ready(function($) {
 
     function highLite() {
         $('.cell').mousemove(function () {
-            if($(this).text() === ''){
+            if($(this).text() == '' ){
                 $(this).css('background-color', ' #8a8219');
             }
         });
         $('.cell').mouseleave(function () {
-            if($(this).text() === '') {
+            if($(this).text() == '' ) {
                 $(this).css('background-color', ' #8a6d3b');
             }
         });
