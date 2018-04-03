@@ -87,9 +87,11 @@ jQuery(document).ready(function($) {
                             $('.cell').css('background-color', '#8a6d3b');
                             $('.cell[data-cell="' + steps[i] + '"]').css('background-color', '#7c5b06')
                                 .append(`<img src="http://`+location.hostname+`/view/img/` + step + `.png" alt="" style="width: 40px">`);
-                            if (i == (steps.length - 1)) {
-                                info('Выберите место где остановился маркер');
-                                checkPoint(last_step);
+                            if (i == (steps.length-1 )) {
+                                setTimeout(()=>{
+                                    info('Выберите место где остановился маркер');
+                                    checkPoint(last_step);
+                                }, 100);
                             }
                         }, 200 * i);
                     }
