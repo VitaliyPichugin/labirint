@@ -11,8 +11,7 @@ spl_autoload_register(function ($file) {
 $init = new Index();
 
 if($_POST['action']){
-    echo $init->draw();
-    die();
+    die(json_encode($init->draw()));
 }
 
 echo $init->get_body();

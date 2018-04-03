@@ -35,13 +35,12 @@ jQuery(document).ready(function($) {
         if (cycle) {
             $('.cell').css({
                 backgroundColor: '#8a6d3b',
-                paddingTop: $('.cell').height()/2+'px'
+                paddingTop: $('.cell').height() / 2 + 'px'
             }).text('');
             let cell = generatePoint();
             let step = generateStep();
             $('.play_game, .setting_game').remove();
             setTimeout(function () {
-                    info('Выберите место где остановился маркер');
                     highLite();
                     getAjax(step, count_steps, cell.cell, cell.col, cell.row, field_row, field_col);
                 }, 600
@@ -79,24 +78,45 @@ jQuery(document).ready(function($) {
                 fieldCol: field_col
             },
             success: function (data) {
-                $('.cell').each(function () {
-                    $(this).bind('click', function () {
-                        $('.alert').remove();
-                        if ($(this).attr('data-cell') === data) {
-                            $(this).css('background-color', 'green').text('You win!');
-                            $('.cell').unbind('click');
-                        }
-                        if ($(this).attr('data-cell') !== data) {
-                            $(this).css('background-color', 'red').text('You lose!');
-                            $('[data-cell=' + data + ']').css({
-                                backgroundColor: 'green'
-                            }).text('Correctly');
-                            $('.cell').unbind('click');
-                        }
-                        generateBtn();
-                    });
-                });
+                let steps = JSON.parse(data);
+                let last_step = steps[steps.length - 1];
+
+                setTimeout(() => {
+                    for (let i = 0; i < steps.length; i++) {
+                        setTimeout(() => {
+                            $('.cell').css('background-color', '#8a6d3b');
+                            $('.cell[data-cell="' + steps[i] + '"]').css('background-color', '#7c5b06')
+                                .append(`<img src="http://`+location.hostname+`/view/img/` + step + `.png" alt="" style="width: 40px">`);
+                            if (i == (steps.length - 1)) {
+                                info('Выберите место где остановился маркер');
+                                checkPoint(last_step);
+                            }
+                        }, 200 * i);
+                    }
+                }, 200);
             }
+        });
+    }
+
+    function checkPoint(last_step) {
+        $('.cell').css('background-color', '#8a6d3b').html('').each(function () {
+            $(this).bind('click', function () {
+                $('.alert').remove();
+                if ($(this).attr('data-cell') == last_step) {
+                    $(this).css('background-color', '#93904f')
+                        .append(`<img src="http://`+location.hostname+`/view/img/win.png" alt="" style="width: 40px">`);
+                    $('.cell').unbind('click');
+                }
+                if ($(this).attr('data-cell') != last_step) {
+                    $(this).css('background-color', '#93904f')
+                        .append(`<img src="http://`+location.hostname+`/view/img/lose.png" alt="" style="width: 40px">`);
+                    $('[data-cell=' + last_step + ']').css({
+                        backgroundColor: '#93904f'
+                    }).append(`<img src="http://`+location.hostname+`/view/img/correctle.png" alt="" style="width: 40px">`);
+                    $('.cell').unbind('click');
+                }
+                generateBtn();
+            });
         });
     }
 
@@ -112,8 +132,8 @@ jQuery(document).ready(function($) {
 
         setTimeout(function () {
             selected_point.addClass('active').css({
-                backgroundColor:'#ff7b11'
-            }).text('Selected');
+                backgroundColor:'#7c5b06'
+            }).text();
         }, 500);
 
         return {
@@ -158,12 +178,12 @@ jQuery(document).ready(function($) {
 
     function highLite() {
         $('.cell').mousemove(function () {
-            if($(this).text() == '' ){
+            if($(this).html() == '' ){
                 $(this).css('background-color', ' #8a8219');
             }
         });
         $('.cell').mouseleave(function () {
-            if($(this).text() == '' ) {
+            if($(this).html() == '' ) {
                 $(this).css('background-color', ' #8a6d3b');
             }
         });

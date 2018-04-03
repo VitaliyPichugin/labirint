@@ -5,6 +5,10 @@ input{
     width: 35px;
 }
 
+img{
+    width: 20px;
+}
+
 .row{
     line-height: 0;
 }

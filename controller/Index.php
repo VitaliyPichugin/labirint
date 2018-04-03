@@ -44,7 +44,7 @@ class Index extends AController
                 break;
             }
         }
-        return end($steps);
+        return $steps;
     }
 
     public function get_body(){
