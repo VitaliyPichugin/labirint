@@ -80,7 +80,7 @@ jQuery(document).ready(function($) {
             success: function (data) {
                 let steps = JSON.parse(data);
                 let last_step = steps[steps.length - 1];
-
+                userPoint();
                 setTimeout(() => {
                     for (let i = 0; i < steps.length; i++) {
                         setTimeout(() => {
@@ -89,35 +89,42 @@ jQuery(document).ready(function($) {
                                 .append(`<img src="http://`+location.hostname+`/view/img/` + step + `.png" alt="" style="width: 40px">`);
                             if (i == (steps.length-1 )) {
                                 setTimeout(()=>{
-                                    info('Выберите место где остановился маркер');
-                                    checkPoint(last_step);
+                                    if( $('.cell').hasClass('user_point')){
+                                        if($('.user_point').attr('data-cell') == last_step){
+                                            $('.user_point').css('background-color', '#93904f').html('')
+                                                .append(`<img src="http://`+location.hostname+`/view/img/win.png" alt="" style="width: 40px">`);
+                                            $('.cell').unbind('click');
+                                        }
+                                        if($('.user_point').attr('data-cell') != last_step){
+                                            $('.user_point').css('background-color', '#93904f').html('')
+                                                .append(`<img src="http://`+location.hostname+`/view/img/lose.png" alt="" style="width: 40px">`);
+                                            $('[data-cell=' + last_step + ']').css({
+                                                backgroundColor: '#93904f'
+                                            }).html('').append(`<img src="http://`+location.hostname+`/view/img/correctle.png" alt="" style="width: 40px">`);
+                                            $('.cell').unbind('click');
+                                        }
+                                    }else {
+                                        $('[data-cell=' + last_step + ']').css({
+                                            backgroundColor: '#93904f'
+                                        }).html('').append(`<img src="http://`+location.hostname+`/view/img/correctle.png" alt="" style="width: 40px">`);
+                                    }
+                                    generateBtn();
                                 }, 100);
                             }
-                        }, 200 * i);
+                        }, 500 * i);
                     }
-                }, 200);
+                }, 500);
             }
         });
     }
 
-    function checkPoint(last_step) {
+
+    function userPoint() {
+        $('.cell').removeClass('user_point');
         $('.cell').css('background-color', '#8a6d3b').html('').each(function () {
             $(this).bind('click', function () {
-                $('.alert').remove();
-                if ($(this).attr('data-cell') == last_step) {
-                    $(this).css('background-color', '#93904f')
-                        .append(`<img src="http://`+location.hostname+`/view/img/win.png" alt="" style="width: 40px">`);
-                    $('.cell').unbind('click');
-                }
-                if ($(this).attr('data-cell') != last_step) {
-                    $(this).css('background-color', '#93904f')
-                        .append(`<img src="http://`+location.hostname+`/view/img/lose.png" alt="" style="width: 40px">`);
-                    $('[data-cell=' + last_step + ']').css({
-                        backgroundColor: '#93904f'
-                    }).append(`<img src="http://`+location.hostname+`/view/img/correctle.png" alt="" style="width: 40px">`);
-                    $('.cell').unbind('click');
-                }
-                generateBtn();
+                $(this).append(`<img src="http://`+location.hostname+`/view/img/ask.png" alt="" style="width: 40px">`)
+                    .addClass('user_point');
             });
         });
     }
@@ -189,10 +196,6 @@ jQuery(document).ready(function($) {
                 $(this).css('background-color', ' #8a6d3b');
             }
         });
-    }
-
-    function info(text) {
-        $('.btn-group').append(`<div class="alert alert-info" role="alert">`+text+`</div>`);
     }
 });
 
