@@ -80,20 +80,20 @@ jQuery(document).ready(function($) {
             success: function (data) {
                 let steps = JSON.parse(data);
                 let last_step = steps[steps.length - 1];
-                userPoint();
                 setTimeout(() => {
+                    userPoint();
                     for (let i = 0; i < steps.length; i++) {
                         setTimeout(() => {
                             $('.cell').css('background-color', '#8a6d3b');
                             $('.cell[data-cell="' + steps[i] + '"]').css('background-color', '#7c5b06')
                                 .append(`<img src="http://`+location.hostname+`/view/img/` + step + `.png" alt="" style="width: 40px">`);
                             if (i == (steps.length-1 )) {
+                                $('.cell').unbind('click');
                                 setTimeout(()=>{
                                     if( $('.cell').hasClass('user_point')){
                                         if($('.user_point').attr('data-cell') == last_step){
                                             $('.user_point').css('background-color', '#93904f').html('')
                                                 .append(`<img src="http://`+location.hostname+`/view/img/win.png" alt="" style="width: 40px">`);
-                                            $('.cell').unbind('click');
                                         }
                                         if($('.user_point').attr('data-cell') != last_step){
                                             $('.user_point').css('background-color', '#93904f').html('')
@@ -101,7 +101,6 @@ jQuery(document).ready(function($) {
                                             $('[data-cell=' + last_step + ']').css({
                                                 backgroundColor: '#93904f'
                                             }).html('').append(`<img src="http://`+location.hostname+`/view/img/correctle.png" alt="" style="width: 40px">`);
-                                            $('.cell').unbind('click');
                                         }
                                     }else {
                                         $('[data-cell=' + last_step + ']').css({
@@ -123,8 +122,10 @@ jQuery(document).ready(function($) {
         $('.cell').removeClass('user_point');
         $('.cell').css('background-color', '#8a6d3b').html('').each(function () {
             $(this).bind('click', function () {
+                flag = true;
                 $(this).append(`<img src="http://`+location.hostname+`/view/img/ask.png" alt="" style="width: 40px">`)
                     .addClass('user_point');
+                $('.cell').unbind('click');
             });
         });
     }
