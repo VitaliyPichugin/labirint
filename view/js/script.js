@@ -124,19 +124,6 @@ jQuery(document).ready(function($) {
         });
     }
 
-
-    function userPoint() {
-        $('.cell').removeClass('user_point');
-        $('.cell').css('background-color', '#8a6d3b').html('').each(function () {
-            $(this).bind('click', function () {
-                flag = true;
-                $(this).append(`<img src="http://`+location.hostname+`/view/img/ask.png" alt="" style="width: 40px">`)
-                    .addClass('user_point');
-                $('.cell').unbind('click');
-            });
-        });
-    }
-
     function generatePoint() {
         let min_point = $('.cell:first').attr('data-cell');
         let max_point = $('.cell:last').attr('data-cell');
