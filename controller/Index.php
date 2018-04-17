@@ -10,39 +10,12 @@ class Index extends AController
 
     public function draw(){
         $steps = [];
-        switch ($_POST['action']){
-            case 'goRight':{
-                $steps = $this->model->goRight(
-                    $_POST['rows'],
-                    $_POST['column'],
-                    $_POST['count']
-                );
-                break;
-            }
-            case 'goLeft':{
-                $steps = $this->model->goLeft(
-                    $_POST['rows'],
-                    $_POST['column'],
-                    $_POST['count']
-                );
-                break;
-            }
-            case 'goUp':{
-                $steps = $this->model->goUp(
-                    $_POST['rows'],
-                    $_POST['column'],
-                    $_POST['count']
-                );
-                break;
-            }
-            case 'goDown':{
-                $steps = $this->model->goDown(
-                    $_POST['rows'],
-                    $_POST['column'],
-                    $_POST['count']
-                );
-                break;
-            }
+        if ($_POST['action']){
+            $steps = $this->model->generateSteps(
+                $_POST['rows'],
+                $_POST['column'],
+                $_POST['count']
+            );
         }
         return $steps;
     }

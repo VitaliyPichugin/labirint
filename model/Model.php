@@ -6,6 +6,8 @@ class Model
     private $rows;
     private $cols;
     private $result=[];
+    private $generate_row;
+    private $generate_col;
 
     public function __construct()
     {
@@ -14,68 +16,124 @@ class Model
         $this->cols = count($this->arr[0]);
     }
 
-    public function goRight($row, $col, $count)
+    public function generateSteps($row, $col, $count)
     {
-        for ($k = 0; $k < $count; $k++) {
-            $col++;//движемся вправо по массиву
-            if ($col >= $this->cols) { //если дошли до края то сбрасываем счетчик
-                $col = 0;
-                $row++;//переходим на след. ряд
-                if ($row >= $this->rows) { //если нет след. ряда то поднимаемся на первый ряд
-                    $row = 0;
-                }
+        $callStep = [];
+        $arrFunctions = [
+            0 => 'goRight',
+            1 => 'goLeft',
+            2 => 'goDown',
+            3 => 'goUp'
+        ];
+
+        for ($i = 0; $i < $count + 1; $i++) {
+            $index = rand(0, 3);
+            if($i === 0){
+                 $this->generateFunctions(
+                     $arrFunctions[$index],
+                     $row, $col
+                 );
+                 array_push($callStep, $arrFunctions[$index]);
+            }else{
+                $this->generateFunctions(
+                    $arrFunctions[$index],
+                    $this->generate_row,
+                    $this->generate_col
+                );
+                array_push($callStep, $arrFunctions[$index]);
             }
-            $this->result[] +=$this->arr[$row][$col];// записываем все совершенные ходы
         }
-        return $this->result;
+
+        $data = [
+            'route' => $callStep,
+            'steps' => $this->result
+        ];
+
+        return $data;
     }
 
-    public function goLeft($row, $col, $count)
+
+    public function generateFunctions($method, $row, $col)
     {
-        for ($k = 0; $k < $count; $k++) {
-            if($col == 0){$col = $this->cols; $row--;}
-            $col--;
-            if ($row < 0) {
-                $row = $this->rows-1;
-            }
-            $this->result[] +=$this->arr[$row][$col];
-            if($col == 0){$col = $this->cols; $row--;}
+        if (method_exists($this, $method)) {
+            return $this->$method($row, $col);
         }
-       return $this->result;
+        else return null;
     }
 
-    public function goDown($row, $col, $count)
+    private function goRight($row, $col)
     {
-        for ($k = 0; $k < $count; $k++) {
-           $row++;
-            if($row >= $this->rows) {
-                $col--;
+        $col++;
+        if ($col >= $this->cols) {
+            $col = 0;
+            $row++;
+            if ($row >= $this->rows) {
                 $row = 0;
-                if ($col >= $this->cols) {
-                    $col --;
-                }
-                if($col < 0){
-                    $col = $this->cols;
-                    $col --;
-                }
             }
-            $this->result[] += $this->arr[$row][$col];
         }
+
+        $this->result[] += $this->arr[$row][$col];
+        $this->generate_row = $row;
+        $this->generate_col = $col;
+
         return $this->result;
     }
 
-    public function goUp($row, $col, $count)
+    private function goLeft($row, $col)
     {
-        for ($k = 0; $k < $count; $k++) {
-            if($row == 0){$row = $this->rows; $col++;}
+        if ($col == 0) {
+            $col = $this->cols;
             $row--;
-            if ($col > $this->rows-1) {
-                $col = 0;
-            }
-            $this->result[] += $this->arr[$row][$col];
-            if($row == 0){$row = $this->rows; $col++;}
         }
-        return  $this->result;
+        $col--;
+        if ($row < 0) {
+            $row = $this->rows - 1;
+        }
+        $this->result[] += $this->arr[$row][$col];
+        $this->generate_row = $row;
+        $this->generate_col = $col;
+
+        return $this->result;
+    }
+
+    private function goDown($row, $col)
+    {
+        $row++;
+        if ($row >= $this->rows) {
+            $col--;
+            $row = 0;
+            if ($col >= $this->cols) {
+                $col--;
+            }
+            if ($col < 0) {
+                $col = $this->cols;
+                $col--;
+            }
+        }
+
+        $this->result[] += $this->arr[$row][$col];
+        $this->generate_row = $row;
+        $this->generate_col = $col;
+
+        return $this->result;
+    }
+
+    private function goUp($row, $col)
+    {
+        if ($row == 0) {
+            $row = $this->rows;
+            $col++;
+        }
+        $row--;
+        if ($col > $this->rows - 1) {
+            $col = 0;
+        }
+
+        $this->result[] += $this->arr[$row][$col];
+        $this->generate_row = $row;
+        $this->generate_col = $col;
+
+        return $this->result;
     }
 
     private function generateArr($row, $col){

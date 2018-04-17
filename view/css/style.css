@@ -18,6 +18,7 @@ img{
     height: 150px;
     background-color: #8a6d3b;
     border: 1px solid grey;
+    margin: 2px;
 }
 
 .new, .conf, .play_game{
@@ -29,8 +30,24 @@ img{
     background-color: #8a8219;
 }
 
+.step{
+    width: 50px;
+    height: 50px;
+    background-color: #a5835f;
+    border: 1px solid #7e5909;
+    margin: 5px;
+}
+
 h4{
     margin-bottom: 90px;
+}
+
+@media all and (max-width: 770px) {
+    .cell{
+        width: 100px;
+        height: 100px;
+
+    }
 }
 
 

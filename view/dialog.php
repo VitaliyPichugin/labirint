@@ -8,7 +8,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <p><strong>Количество ходов:</strong> <input class="cnt_steps" value="10" type="number"  minlength="3"></p>
+               <!-- <p><strong>Количество ходов:</strong> <input class="cnt_steps" value="10" type="number"  minlength="3"></p>-->
                 <p><strong>Размер поля:</strong>
                      <input class="cnt_rows" value="3" maxlength="10" minlength="3" type="number">
                     на <input class="cnt_cols" value="3" maxlength="10" minlength="3" type="number">

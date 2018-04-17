@@ -2,10 +2,12 @@ jQuery(document).ready(function($) {
      var cycle = false;
      var field_row = $('.cnt_rows').val() > 3 ? $('.cnt_rows').val() : 3;
      var field_col = $('.cnt_cols').val() > 3 ? $('.cnt_cols').val() : 3;
-     var count_steps = $('.cnt_steps').val() > 1 ? $('.cnt_steps').val() : 10;
+     //var count_steps = $('.cnt_steps').val() > 1 ? $('.cnt_steps').val() : 10;
+    var count_steps = 10;
 
     draw_field(field_row,field_col);
     generateBtn();
+    generatePanelSteps(count_steps);
     $('.cell').each(function (e) {
         $(this).attr('data-cell', e + 1);
     });
@@ -13,9 +15,10 @@ jQuery(document).ready(function($) {
     $('.save_config').on('click', function () {
         field_row = $('.cnt_rows').val() > 3 ? $('.cnt_rows').val() : 3;
         field_col = $('.cnt_cols').val() > 3 ? $('.cnt_cols').val() : 3;
-        count_steps = $('.cnt_steps').val() > 1 ? $('.cnt_steps').val() : 10;
+        //count_steps = $('.cnt_steps').val() > 1 ? $('.cnt_steps').val() : 10;
         $('.field').remove();
         draw_field(field_row,field_col);
+        generatePanelSteps(count_steps);
         $('.cell').each(function (e) {
             $(this).attr('data-cell', e + 1);
         });
@@ -24,14 +27,14 @@ jQuery(document).ready(function($) {
     $('body').on('click', '.new', function () {
         $('.play_game').remove();
         $('.cell').unbind('click').css('background-color', '#8a6d3b').text('');
-        $('.step').prop("disabled", true);
+        $('.step').html('').css('background-color', '#a5835f');
+
         cycle = true;
         $('.setting_game').remove();
         startGame();
     });
 
     function startGame() {
-        $('.step').prop("disabled", false);
         if (cycle) {
             $('.cell').css({
                 backgroundColor: '#8a6d3b',
@@ -78,39 +81,43 @@ jQuery(document).ready(function($) {
                 fieldCol: field_col
             },
             success: function (data) {
-                let steps = JSON.parse(data);
+                let res = JSON.parse(data);
+                let steps = res.steps;
+                let route = res.route;
+                let first_step = steps[0];
+                steps.splice(0, 1);
+                route.splice(0, 1);
                 let last_step = steps[steps.length - 1];
                 setTimeout(() => {
-                    userPoint();
+                    $('.cell').unbind('click');
+                    $('.cell[data-cell="' + first_step + '"]')
+                        .append(`<img src="http://` + location.hostname + `/view/img/start.png" alt="" style="width: 40px">`);
                     for (let i = 0; i < steps.length; i++) {
                         setTimeout(() => {
-                            $('.cell').css('background-color', '#8a6d3b');
-                            $('.cell[data-cell="' + steps[i] + '"]').css('background-color', '#7c5b06')
-                                .append(`<img src="http://`+location.hostname+`/view/img/` + step + `.png" alt="" style="width: 40px">`);
-                            if (i == (steps.length-1 )) {
-                                $('.cell').unbind('click');
-                                setTimeout(()=>{
-                                    if( $('.cell').hasClass('user_point')){
-                                        if($('.user_point').attr('data-cell') == last_step){
-                                            $('.user_point').css('background-color', '#93904f').html('')
-                                                .append(`<img src="http://`+location.hostname+`/view/img/win.png" alt="" style="width: 40px">`);
-                                        }
-                                        if($('.user_point').attr('data-cell') != last_step){
-                                            $('.user_point').css('background-color', '#93904f').html('')
-                                                .append(`<img src="http://`+location.hostname+`/view/img/lose.png" alt="" style="width: 40px">`);
+                            setTimeout(() => {
+                                $('.step[data-step="' + i + '"]').addClass('active_step').css('background-color', '#828a48');
+                                if ($('.step:last').hasClass('active_step')) {
+                                    $('.cell').bind('click', function () {
+                                        $('[data-cell=' + first_step + ']').html('');
+                                        if ($(this).attr('data-cell') === last_step) {
+                                            $(this).css('background-color', '#93904f').html('')
+                                                .append(`<img src="http://` + location.hostname + `/view/img/win.png" alt="" style="width: 40px">`);
+                                        } else {
+                                            $(this).css('background-color', '#93904f').html('')
+                                                .append(`<img src="http://` + location.hostname + `/view/img/lose.png" alt="" style="width: 40px">`);
                                             $('[data-cell=' + last_step + ']').css({
                                                 backgroundColor: '#93904f'
-                                            }).html('').append(`<img src="http://`+location.hostname+`/view/img/correctle.png" alt="" style="width: 40px">`);
+                                            }).html('').append(`<img src="http://` + location.hostname + `/view/img/correctle.png" alt="" style="width: 40px">`);
+                                            generateBtn();
                                         }
-                                    }else {
-                                        $('[data-cell=' + last_step + ']').css({
-                                            backgroundColor: '#93904f'
-                                        }).html('').append(`<img src="http://`+location.hostname+`/view/img/correctle.png" alt="" style="width: 40px">`);
-                                    }
-                                    generateBtn();
-                                }, 100);
-                            }
-                        }, 500 * i);
+                                        $('.step').removeClass('active_step');
+                                        $('.cell').unbind('click');
+                                    });
+                                }
+                            }, 800);
+                            $('.step[data-step="' + i + '"]')
+                                .append(`<img src="http://` + location.hostname + `/view/img/` + route[i] + `.png" alt="" style="width: 30px">`);
+                        }, 800 * i);
                     }
                 }, 500);
             }
@@ -140,12 +147,6 @@ jQuery(document).ready(function($) {
         let row = selected_point.attr('data-row');
         let col = selected_point.attr('data-col');
 
-        setTimeout(function () {
-            selected_point.addClass('active').css({
-                backgroundColor:'#7c5b06'
-            }).text();
-        }, 500);
-
         return {
             "cell": val,
             "row": row,
@@ -168,9 +169,7 @@ jQuery(document).ready(function($) {
         return steps[step];
     }
 
-
-    function getRandomValue(min, max, type=null)
-    {
+    function getRandomValue(min, max, type=null){
         if(type == 'step'){
             return Math.floor(Math.random() * (max - min + 1)) + min;
         }else {
@@ -184,6 +183,22 @@ jQuery(document).ready(function($) {
         <button type="button" class="btn btn-default new">Новая игра </button>
         <button data-toggle="modal" data-target="#dialog" type="button" class="btn btn-default conf">Настройки игры </button></div>
         `);
+    }
+
+    function generatePanelSteps(count_steps) {
+        let cnt = 0;
+        for(let i = 0; i < 2; i++){
+            $('.container').append(`
+                <div class="row field">
+                    <div class="col-xs-12">
+                        <div style="display: inline-block"  class=" step-`+i+`"></div>
+                    </div>
+            </div>`);
+            for(let j=0; j<count_steps/2; j++){
+                $(`<div data-step="`+cnt+`" class="col-sm-4 step"></div>`).appendTo(".step-"+i);
+                cnt++;
+            }
+        }
     }
 
     function highLite() {
