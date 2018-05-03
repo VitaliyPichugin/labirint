@@ -8,6 +8,7 @@ spl_autoload_register(function ($file) {
     }
 });
 
+//init
 $init = new Index();
 
 if($_POST['action']){
